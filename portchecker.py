@@ -31,12 +31,7 @@ connref_is_open = True
 # The port is default interpreted as tcp but can be changed to udp with a "/udp" suffix, e.g. 123/udp
 # UDP mode is experimental - not verified if its working correctly.
 
-rules_csv = """
-10; Internet - google.net; www.google.net; 80; 443
-"""
-
 # Example CSV
-# rules_csv = """
 # 1; Localhost Hostname test; localhost; 80; 443
 # 1; Localhost IPv4 test; 127.0.0.1; 80; 443
 # 1; Localhost IPv6 test; ::1; 80; 443
@@ -47,7 +42,6 @@ rules_csv = """
 # 99; Internet; www.google.net; 80; 443
 # 99; API Server; api-server.somehost.net; 80; 443
 # 100; test; hostname.does.not.exist; 80; 443
-# """
 
 
 # as we don't want to have non-standard packages in this portchecker, ipv6 address will be validated per regex
@@ -70,15 +64,18 @@ print( "Awesomenes Portchecker 3000" )
 print( "---------------------------" )
 
 rules_dict = {}
-f = StringIO(rules_csv)
-reader = csv.reader(f, delimiter=';')
-for row in reader:
-    if not row:
-        continue
-    rule_id = row[0].strip()
-    if rule_id not in rules_dict:
-        rules_dict[rule_id] = {'desc': row[1].strip()}
-    rules_dict[rule_id][row[2].strip()] = row[3:]
+try:
+    with open(sys.argv[1]) as f:
+        reader = csv.reader(f, delimiter=';')
+        for row in reader:
+            if not row:
+                continue
+            rule_id = row[0].strip()
+            if rule_id not in rules_dict:
+                rules_dict[rule_id] = {'desc': row[1].strip()}
+            rules_dict[rule_id][row[2].strip()] = row[3:]
+except IndexError:
+    print( "Please insert a .csv file" )
 
 rules_keys = natural_sort(rules_dict.keys())
 for rule_id in rules_keys:
